@@ -21,13 +21,9 @@
 
 package org.geolatte.graph.algorithms;
 
-import org.geolatte.graph.Graph;
-import org.geolatte.graph.GraphTree;
-import org.geolatte.graph.Locatable;
-import org.geolatte.graph.LocateableGraph;
-import org.geolatte.graph.Path;
-import org.geolatte.graph.RoutingContextualReachability;
-import org.geolatte.graph.Traversal;
+import org.geolatte.graph.*;
+
+import java.util.HashMap;
 
 /**
  * Offers a number of static factory methods to instantiate pre-configured graph algorithms.
@@ -93,6 +89,25 @@ public class GraphAlgorithms {
                                                                 RoutingContextualReachability<N, E, Traversal<N, E>> contextualReachability) {
 
         return new Dijkstra<N, E>(graph, origin, destination, GraphAlgorithms.<N, E>createDefaultRelaxer(), weightKind, contextualReachability);
+    }
+
+    /**
+     * Constructs a Dijkstra shortest-path tree algorithm instance.
+     *
+     * @param graph                  The graph on which to run the Dijkstra algorithm.
+     * @param origin                 The internalNode from which to start routing.
+     * @param maxDistance            The maximum distance to search in.
+     * @param weightIndex            The index to lookup the weight.
+     * @param <N>                    Type of nodes in the graph.
+     * @param <E>                    The edge label type.
+     * @return A default Dijkstra algorithm.
+     */
+    public static <N, E> GraphAlgorithm <HashMap<N, Double>> createDijkstraMap(Graph<N, E> graph,
+                                                                               N origin,
+                                                                               float maxDistance,
+                                                                               int weightIndex) {
+
+        return new DijkstraMap<N, E>(graph, origin, maxDistance, GraphAlgorithms.<N, E>createDefaultRelaxer(), weightIndex);
     }
 
     /**

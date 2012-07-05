@@ -23,62 +23,51 @@ package org.geolatte.graph.algorithms;
 
 import org.geolatte.graph.*;
 
+import java.util.HashMap;
+
 /**
  * <p>
  * Implements the basic Dijkstra shortest path algorithm. By passing in different relaxers, the algorithm can be
- * tweaked.
+ * tweaked. This implementation returns a map of the nodes within the given distance and the length of the shortest path
+ * to that node.
  * </p>
  *
- * @author Karel Maesen
  * @author Jeroen Vuerinckx
  */
-public class Dijkstra<N, E> implements GraphAlgorithm<Path<N>> {
+public class DijkstraMap<N, E> implements GraphAlgorithm<HashMap<N, Double>> {
     private DijkstraAlgorithm<N, E> dijkstraAlgorithm;
-    private Path<N> result;
+    private HashMap<N, Double> result;
 
-    protected Dijkstra(Graph<N, E> graph, N origin, N destination, Relaxer<N, E> relaxer, int weightIndex,
-                       RoutingContextualReachability<N, E, Traversal<N, E>> reachability) {
-        reachability.setOriginDestination(
-                graph.getInternalNode(origin).getWrappedNode(),
-                graph.getInternalNode(destination).getWrappedNode());
-
-        final InternalNode<N, E> destinationInternalNode = graph.getInternalNode(destination);
-
+    protected DijkstraMap(Graph<N, E> graph, N origin, final float maxDistance, Relaxer<N, E> relaxer, int weightIndex,
+                          ContextualReachability<N, E, Traversal<N, E>> reachability) {
         dijkstraAlgorithm = new DijkstraAlgorithm<N, E>(graph, origin, relaxer, weightIndex, reachability) {
             @Override
             protected boolean isDone(PredGraph<N, E> pu) {
-                if (pu.getInternalNode().equals(destinationInternalNode)) {
-                    result = toPath(pu);
-                    return true;
+                return pu.getWeight() > maxDistance;
+            }
+
+            @Override
+            protected void weightUpdated(PredGraph<N, E> pv) {
+                if (pv.getWeight() <= maxDistance) {
+                    result.put(pv.getInternalNode().getWrappedNode(), (double) pv.getWeight());
                 }
-                return false;
             }
         };
     }
 
-    protected Dijkstra(Graph<N, E> graph, N origin, N destination, Relaxer<N, E> relaxer, int weightIndex) {
-        this(graph, origin, destination, relaxer, weightIndex, new EmptyContextualReachability<N, E, Traversal<N, E>>());
+    protected DijkstraMap(Graph<N, E> graph, N origin, float maxDistance, Relaxer<N, E> relaxer, int weightIndex) {
+        this(graph, origin, maxDistance, relaxer, weightIndex, new EmptyContextualReachability<N, E, Traversal<N, E>>());
     }
 
     public void execute() {
+        result = new HashMap<N, Double>();
+        result.put(dijkstraAlgorithm.getOrigin().getWrappedNode(), 0d);
+
         dijkstraAlgorithm.execute();
     }
 
-    private Path<N> toPath(PredGraph<N, E> p) {
-        BasicPath<N> path = new BasicPath<N>();
-        path.setTotalWeight(p.getWeight());
-        path.insert(p.getInternalNode().getWrappedNode());
-        PredGraph<N, E> next = p.getPredecessor();
-
-        while (next != null) {
-            path.insert(next.getInternalNode().getWrappedNode());
-            next = next.getPredecessor();
-        }
-        path.setValid(true);
-        return path;
-    }
-
-    public Path<N> getResult() {
+    public HashMap<N, Double> getResult() {
         return this.result;
     }
+
 }

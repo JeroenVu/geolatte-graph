@@ -6,18 +6,19 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 
 /**
  * <p>
- * Tests the {@link org.geolatte.graph.algorithms.BFSDistanceLimited} class when used with different edge weights.
+ * Tests the {@link BFSDistanceLimited} class when used with different edge weights.
  * </p>
  *
  * @author Jeroen Vuerinckx
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  */
-public class BFSDistanceLimitedWithEdgeWeightTest {
+public class DijkstraMapTest {
 
     /**
      * We use this graph for testing.
@@ -66,17 +67,26 @@ public class BFSDistanceLimitedWithEdgeWeightTest {
 
     @Test
     public void testExecute() {
-
-        int maxDistance = 10;
-        GraphAlgorithm<GraphTree<MyLocatableNode, Object>> bfsAlgorithm = GraphAlgorithms.createBFS(graph, _0, maxDistance, 0);
+        int maxDistance = 100;
+        GraphAlgorithm<HashMap<MyLocatableNode, Double>> bfsAlgorithm = GraphAlgorithms.createDijkstraMap(graph, _0, maxDistance, 0);
         bfsAlgorithm.execute();
-        GraphTree<MyLocatableNode, Object> result = bfsAlgorithm.getResult();
+        HashMap<MyLocatableNode, Double> result = bfsAlgorithm.getResult();
 
-        assertEquals(4, result.toMap().size());
-        result.toMap().keySet().containsAll(Arrays.asList(_0, _1, _2, _3));
+        assertEquals(4, result.size());
+        result.keySet().containsAll(Arrays.asList(_0, _1, _2, _3));
 
-//        assertEquals(result.toMap().get(_3), 3., 0); //TODO: fails!
+        assertEquals(result.get(_3), 3., 0);
+    }
 
+    @Test
+    public void testMaxDistance() {
+        int maxDistance = 2;
+        GraphAlgorithm<HashMap<MyLocatableNode, Double>> bfsAlgorithm = GraphAlgorithms.createDijkstraMap(graph, _0, maxDistance, 0);
+        bfsAlgorithm.execute();
+        HashMap<MyLocatableNode, Double> result = bfsAlgorithm.getResult();
+
+        assertEquals(3, result.size());
+        result.keySet().containsAll(Arrays.asList(_0, _1, _2));
     }
 
 }
