@@ -96,7 +96,8 @@ public class BFSDistanceLimitedTest {
     @Test
     public void testExecute() {
 
-        GraphAlgorithm<GraphTree<MyLocatableNode, Object>> bfsAlgorithm = GraphAlgorithms.createBFS(graph, _0, 2, 0);
+        int maxDistance = 2;
+        GraphAlgorithm<GraphTree<MyLocatableNode, Object>> bfsAlgorithm = GraphAlgorithms.createBFS(graph, _0, maxDistance, 0);
         bfsAlgorithm.execute();
         GraphTree<MyLocatableNode, Object> result = bfsAlgorithm.getResult();
 
@@ -104,7 +105,8 @@ public class BFSDistanceLimitedTest {
         result.toMap().keySet().containsAll(Arrays.asList(_0, _1, _2, _4, _6, _7, _10));
 
         // Test again with a wider range
-        bfsAlgorithm = GraphAlgorithms.createBFS(graph, _0, 3, 0);
+        maxDistance = 3;
+        bfsAlgorithm = GraphAlgorithms.createBFS(graph, _0, maxDistance, 0);
         bfsAlgorithm.execute();
         result = bfsAlgorithm.getResult();
 
